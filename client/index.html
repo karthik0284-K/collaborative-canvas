@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket.io Test</title>
+  </head>
+  <body>
+    <h1>Collaborative Canvas — Backend Test</h1>
+    <p id="status">Connecting...</p>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+      const status = document.getElementById("status");
+      socket.on("connect", () => {
+        status.textContent = "Connected to server ";
+        console.log("Socket ID:", socket.id);
+      });
+      socket.on("disconnect", () => {
+        status.textContent = "Disconnected from server";
+      });
+    </script>
+  </body>
+</html>
