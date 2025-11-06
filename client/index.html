@@ -8,21 +8,72 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background: #f3f3f3;
+      }
+      #toolbar {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        z-index: 10;
       }
       #board {
         display: block;
         cursor: crosshair;
       }
+      label {
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+      button {
+        padding: 4px 10px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <div id="toolbar">
+      <label>Color <input type="color" id="color" value="#000000"></label>
+      <label>Width <input type="range" id="width" min="1" max="20" value="4"></label>
+      <button id="brushBtn">Brush</button>
+      <button id="eraserBtn">Eraser</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+
     <canvas id="board"></canvas>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script type="module">
       import { Canvas } from "./canvas.js";
+
       const socket = io();
-      new Canvas(socket);
+      const canvasApp = new Canvas(socket);
+
+      // Tool controls
+      const colorInput = document.getElementById("color");
+      const widthInput = document.getElementById("width");
+      const brushBtn = document.getElementById("brushBtn");
+      const eraserBtn = document.getElementById("eraserBtn");
+      const clearBtn = document.getElementById("clearBtn");
+
+      colorInput.addEventListener("input", e => {
+        canvasApp.color = e.target.value;
+      });
+
+      widthInput.addEventListener("input", e => {
+        canvasApp.lineWidth = parseInt(e.target.value);
+      });
+
+      brushBtn.addEventListener("click", () => canvasApp.tool = "brush");
+      eraserBtn.addEventListener("click", () => canvasApp.tool = "eraser");
+
+      clearBtn.addEventListener("click", () => canvasApp.clear());
     </script>
   </body>
 </html>
