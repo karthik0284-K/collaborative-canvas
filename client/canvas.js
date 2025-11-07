@@ -1,8 +1,9 @@
 export class Canvas {
-  constructor(socket) {
+  constructor(socket, roomName) {
     this.canvas = document.getElementById("board");
     this.ctx = this.canvas.getContext("2d");
     this.socket = socket;
+    this.room = roomName;
 
     this.isDrawing = false;
     this.color = "#000000";
@@ -146,7 +147,7 @@ export class Canvas {
   }
 
   async replayAll() {
-    const res = await fetch("/state");
+    const res = await fetch(`/state?room=${this.room}`);
     const strokes = await res.json();
     this.clearCanvas();
     strokes.forEach((s) => {

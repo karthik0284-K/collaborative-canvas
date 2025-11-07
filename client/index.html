@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Collaborative Canvas</title>
+    <title>Collaborative Canvas - Rooms</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body, html { margin:0; padding:0; overflow:hidden; background:#f3f3f3; }
@@ -46,8 +46,11 @@
     <script type="module">
       import { Canvas } from "./canvas.js";
 
-      const socket = io();
-      const canvasApp = new Canvas(socket);
+      const urlParams = new URLSearchParams(window.location.search);
+      const room = urlParams.get("room") || "default";
+
+      const socket = io({ query: { room } });
+      const canvasApp = new Canvas(socket, room);
 
       const colorInput = document.getElementById("color");
       const widthInput = document.getElementById("width");

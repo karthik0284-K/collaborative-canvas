@@ -12,7 +12,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const state = new DrawingState(); // holds all strokes
+// store all rooms (roomName → DrawingState)
+const rooms = new Map();
 
 app.use(express.static(path.join(__dirname, "..", "client")));
 
@@ -20,13 +21,24 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "client", "index.html"));
 });
 
-// expose current active strokes for replay
+// serve current room strokes (for replay)
 app.get("/state", (req, res) => {
+  const room = req.query.room || "default";
+  const state = rooms.get(room);
+  if (!state) return res.json([]);
   res.json(state.getActiveStrokes());
 });
 
 io.on("connection", (socket) => {
-  console.log("✅ User connected:", socket.id);
+  const query = socket.handshake.query;
+  const roomName = query.room || "default";
+
+  if (!rooms.has(roomName)) rooms.set(roomName, new DrawingState());
+  const state = rooms.get(roomName);
+
+  socket.join(roomName);
+
+  console.log(`✅ User connected: ${socket.id} to room: ${roomName}`);
 
   const user = {
     id: socket.id,
@@ -34,9 +46,9 @@ io.on("connection", (socket) => {
     color: randomColor(),
   };
 
-  // --- Cursor handling ---
+  // --- Cursor updates ---
   socket.on("cursor:move", (data) => {
-    socket.broadcast.emit("cursor:update", {
+    socket.to(roomName).emit("cursor:update", {
       id: socket.id,
       x: data.x,
       y: data.y,
@@ -57,7 +69,7 @@ io.on("connection", (socket) => {
       active: true,
     };
     state.addStroke(stroke);
-    socket.broadcast.emit("stroke:start", data);
+    socket.to(roomName).emit("stroke:start", data);
   });
 
   socket.on("stroke:points", (data) => {
@@ -65,32 +77,32 @@ io.on("connection", (socket) => {
     if (stroke && stroke.active) {
       stroke.points.push({ x: data.x2, y: data.y2 });
     }
-    socket.broadcast.emit("stroke:points", data);
+    socket.to(roomName).emit("stroke:points", data);
   });
 
   socket.on("stroke:end", (data) => {
-    socket.broadcast.emit("stroke:end", data);
+    socket.to(roomName).emit("stroke:end", data);
   });
 
   socket.on("canvas:clear", () => {
     state.strokes = [];
-    io.emit("canvas:clear");
+    io.to(roomName).emit("canvas:clear");
   });
 
-  // --- Per-user undo/redo ---
+  // --- Per-user undo/redo (within this room) ---
   socket.on("undo", () => {
     const undoneId = state.undo(socket.id);
-    if (undoneId) io.emit("stroke:undo", { id: undoneId });
+    if (undoneId) io.to(roomName).emit("stroke:undo", { id: undoneId });
   });
 
   socket.on("redo", () => {
     const redoneId = state.redo(socket.id);
-    if (redoneId) io.emit("stroke:redo", { id: redoneId });
+    if (redoneId) io.to(roomName).emit("stroke:redo", { id: redoneId });
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
-    socket.broadcast.emit("user:left", socket.id);
+    console.log(`❌ User disconnected: ${socket.id} from ${roomName}`);
+    socket.to(roomName).emit("user:left", socket.id);
   });
 });
 
