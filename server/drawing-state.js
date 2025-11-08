@@ -7,21 +7,25 @@ export class DrawingState {
     this.strokes.push(stroke);
   }
 
-  undo() {
+  undo(userId) {
+    // undo only last active stroke by this user
     for (let i = this.strokes.length - 1; i >= 0; i--) {
-      if (this.strokes[i].active) {
-        this.strokes[i].active = false;
-        return this.strokes[i].id;
+      const s = this.strokes[i];
+      if (s.active && s.userId === userId) {
+        s.active = false;
+        return s.id;
       }
     }
     return null;
   }
 
-  redo() {
+  redo(userId) {
+    // redo the first inactive stroke of this user
     for (let i = 0; i < this.strokes.length; i++) {
-      if (!this.strokes[i].active) {
-        this.strokes[i].active = true;
-        return this.strokes[i].id;
+      const s = this.strokes[i];
+      if (!s.active && s.userId === userId) {
+        s.active = true;
+        return s.id;
       }
     }
     return null;
