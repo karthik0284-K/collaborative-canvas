@@ -1,6 +1,7 @@
 export class DrawingState {
   constructor() {
     this.strokes = [];
+    this.users = {};
   }
 
   addStroke(stroke) {
@@ -8,7 +9,6 @@ export class DrawingState {
   }
 
   undo(userId) {
-    // undo only last active stroke by this user
     for (let i = this.strokes.length - 1; i >= 0; i--) {
       const s = this.strokes[i];
       if (s.active && s.userId === userId) {
@@ -20,7 +20,6 @@ export class DrawingState {
   }
 
   redo(userId) {
-    // redo the first inactive stroke of this user
     for (let i = 0; i < this.strokes.length; i++) {
       const s = this.strokes[i];
       if (!s.active && s.userId === userId) {

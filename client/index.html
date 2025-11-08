@@ -5,169 +5,50 @@
   <title>Collaborative Canvas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* -------- GLOBAL STYLES -------- */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: #f1f5f9;
-      overflow: hidden;
-    }
+    body, html { margin:0; padding:0; height:100%; font-family:"Poppins",sans-serif; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:#f1f5f9; overflow:hidden; }
 
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-size: 15px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
-
-    input {
-      border: none;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 14px;
-      outline: none;
-    }
-
-    /* -------- HOMEPAGE STYLES -------- */
-    #homepage {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-      gap: 20px;
-    }
-
+    /* Homepage */
+    #homepage { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; }
     .home-box {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 40px;
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-      width: 320px;
+      background:rgba(255,255,255,0.1); padding:40px; border-radius:16px;
+      backdrop-filter:blur(10px); box-shadow:0 4px 30px rgba(0,0,0,0.3); width:320px;
+      text-align:center; transition:all 0.3s ease;
     }
+    .home-box:hover { transform:scale(1.02); }
+    .home-box input { width:100%; padding:8px; margin:10px 0; border:none; border-radius:8px; }
+    button { cursor:pointer; border:none; border-radius:8px; padding:10px 16px; font-size:15px; transition:all 0.3s; }
+    .btn-primary { background:#2563eb; color:white; } .btn-primary:hover{background:#1d4ed8;}
+    .btn-secondary { background:transparent; border:1px solid rgba(255,255,255,0.4); color:white; }
 
-    .home-box h1 {
-      font-size: 26px;
-      margin-bottom: 10px;
-    }
-
-    .home-box p {
-      font-size: 14px;
-      color: #cbd5e1;
-      margin-bottom: 25px;
-    }
-
-    .home-box input {
-      width: 100%;
-      margin-top: 8px;
-      margin-bottom: 15px;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-    }
-
-    /* -------- CANVAS PAGE STYLES -------- */
-    #canvasPage {
-      display: none;
-      height: 100%;
-      width: 100%;
-      position: relative;
-    }
+    /* Canvas Page */
+    #canvasPage { display:none; height:100%; position:relative; }
+    #board { width:100%; height:100%; display:block; background:#fff; cursor:crosshair; }
 
     #toolbar {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 8px 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      z-index: 10;
+      position:fixed; top:10px; left:50%; transform:translateX(-50%);
+      background:rgba(255,255,255,0.95); padding:10px 18px; border-radius:14px;
+      display:flex; gap:10px; align-items:center; box-shadow:0 4px 25px rgba(0,0,0,0.3); z-index:10;
     }
+    #toolbar select { border:none; background:#e2e8f0; border-radius:8px; padding:6px; }
 
-    #toolbar button {
-      background: #e2e8f0;
-      color: #0f172a;
-    }
-
-    #toolbar button:hover {
-      background: #cbd5e1;
-    }
-
-    #board {
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: #ffffff;
-      cursor: crosshair;
-    }
-
-    /* Cursors */
     .cursor {
-      position: absolute;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      z-index: 20;
+      position:absolute; pointer-events:none; transform:translate(-50%,-50%);
+      border-radius:50%; width:12px; height:12px; z-index:20;
     }
-
     .cursor .nameTag {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 10px;
-      padding: 1px 4px;
-      border-radius: 4px;
-      display: none;
-      white-space: nowrap;
+      position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.6); color:white; font-size:10px; padding:2px 4px; border-radius:4px; display:none;
     }
-
-    .cursor:hover .nameTag {
-      display: block;
-    }
+    .cursor:hover .nameTag { display:block; }
   </style>
 </head>
 <body>
-  <!-- HOMEPAGE -->
   <div id="homepage">
     <div class="home-box">
       <h1>🎨 Collaborative Canvas</h1>
-      <p>Draw alone or create a room to collaborate with friends in real time.</p>
-
+      <p>Draw alone or create a shared room with friends.</p>
       <button id="soloBtn" class="btn-primary" style="width:100%">Draw Alone</button>
-
-      <hr style="margin:20px 0;opacity:0.3" />
-
+      <hr style="opacity:0.3;margin:20px 0;">
       <input id="roomInput" placeholder="Enter room name..." />
       <div style="display:flex;gap:10px;justify-content:center;">
         <button id="joinBtn" class="btn-primary">Join Room</button>
@@ -176,11 +57,11 @@
     </div>
   </div>
 
-  <!-- CANVAS PAGE -->
   <div id="canvasPage">
     <div id="toolbar">
       <label>🎨 <input type="color" id="color" value="#000000" /></label>
       <label>🖋️ <input type="range" id="width" min="1" max="20" value="4" /></label>
+      <select id="userList"><option>👥 Users</option></select>
       <button id="brushBtn">Brush</button>
       <button id="eraserBtn">Eraser</button>
       <button id="undoBtn">Undo</button>
@@ -191,83 +72,95 @@
     <canvas id="board"></canvas>
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script type="module">
     import { Canvas } from "./canvas.js";
 
     const homepage = document.getElementById("homepage");
     const canvasPage = document.getElementById("canvasPage");
-    const board = document.getElementById("board");
+    const userList = document.getElementById("userList");
+    let socket, canvasApp;
 
-    let canvasApp;
-    let socket;
+    async function checkRoomExists(room) {
+      const res = await fetch(`/check-room?room=${room}`);
+      const data = await res.json();
+      return data.exists;
+    }
 
-    // Switch from homepage to canvas view
-    function openCanvas(room, local = false) {
+    async function createRoom(room) {
+      await fetch(`/create-room?room=${room}`);
+    }
+
+    async function openCanvas(room, local=false) {
       homepage.style.display = "none";
       canvasPage.style.display = "block";
 
-      if (local) {
-        socket = null;
-      } else {
-        socket = io({ query: { room } });
+      socket = local ? null : io({ query: { room } });
+      canvasApp = new Canvas(socket, room);
+
+      if (socket) {
+        socket.on("user:list", (users) => {
+          userList.innerHTML = `<option>👥 Users (${users.length})</option>`;
+          users.forEach(u => {
+            const opt = document.createElement("option");
+            opt.textContent = u.name;
+            opt.style.color = u.color;
+            userList.appendChild(opt);
+          });
+        });
       }
 
-      canvasApp = new Canvas(socket, room || "default");
-
-      // Toolbar logic
-      const colorInput = document.getElementById("color");
-      const widthInput = document.getElementById("width");
-      const brushBtn = document.getElementById("brushBtn");
-      const eraserBtn = document.getElementById("eraserBtn");
-      const undoBtn = document.getElementById("undoBtn");
-      const redoBtn = document.getElementById("redoBtn");
-      const clearBtn = document.getElementById("clearBtn");
-      const backBtn = document.getElementById("backBtn");
-
-      colorInput.addEventListener("input", (e) => (canvasApp.color = e.target.value));
-      widthInput.addEventListener("input", (e) => (canvasApp.lineWidth = parseInt(e.target.value)));
-      brushBtn.addEventListener("click", () => {
-        canvasApp.tool = "brush";
-        brushBtn.style.background = "#cbd5e1";
-        eraserBtn.style.background = "#e2e8f0";
-      });
-      eraserBtn.addEventListener("click", () => {
-        canvasApp.tool = "eraser";
-        eraserBtn.style.background = "#cbd5e1";
-        brushBtn.style.background = "#e2e8f0";
-      });
-      undoBtn.addEventListener("click", () => canvasApp.undo());
-      redoBtn.addEventListener("click", () => canvasApp.redo());
-      clearBtn.addEventListener("click", () => canvasApp.clear());
-      backBtn.addEventListener("click", () => {
-        if (confirm("Leave the canvas?")) {
-          canvasApp.clearCanvas();
-          if (socket) socket.disconnect();
-          canvasPage.style.display = "none";
-          homepage.style.display = "flex";
+      document.getElementById("color").oninput = (e)=>canvasApp.color=e.target.value;
+      document.getElementById("width").oninput = (e)=>canvasApp.lineWidth=parseInt(e.target.value);
+      document.getElementById("brushBtn").onclick = ()=>canvasApp.tool="brush";
+      document.getElementById("eraserBtn").onclick = ()=>canvasApp.tool="eraser";
+      document.getElementById("undoBtn").onclick = ()=>canvasApp.undo();
+      document.getElementById("redoBtn").onclick = ()=>canvasApp.redo();
+      document.getElementById("clearBtn").onclick = ()=>canvasApp.clear();
+      document.getElementById("backBtn").onclick = ()=>{
+        if(confirm("Leave room?")) {
+          if(socket) socket.disconnect();
+          canvasPage.style.display="none"; homepage.style.display="flex";
         }
-      });
+      };
     }
 
-    // Homepage buttons
-    document.getElementById("soloBtn").addEventListener("click", () => openCanvas(null, true));
-    document.getElementById("joinBtn").addEventListener("click", () => {
-      const room = document.getElementById("roomInput").value.trim();
-      if (room) openCanvas(room);
-      else alert("Please enter a room name!");
-    });
-    document.getElementById("createBtn").addEventListener("click", () => {
-      const room = "room-" + Math.random().toString(36).substring(2, 8);
-      openCanvas(room);
-      alert("✅ Room created! Share this link:\n" + window.location.origin + "?room=" + room);
-    });
+    document.getElementById("soloBtn").onclick = ()=>openCanvas(null,true);
 
-    // If opened with ?room=name directly
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get("room");
-    if (roomParam) openCanvas(roomParam);
+    // ✅ Fixed Create Room button logic
+    document.getElementById("createBtn").onclick = async ()=>{
+      let room = document.getElementById("roomInput").value.trim();
+      if (!room) {
+        room = "room-" + Math.random().toString(36).substring(2,8);
+      }
+
+      // Normalize to lowercase to avoid duplicates like 'Room1' vs 'room1'
+      room = room.toLowerCase();
+
+      const exists = await checkRoomExists(room);
+      if (exists) {
+        alert("⚠️ Room already exists! Try a different name.");
+        return;
+      }
+
+      await createRoom(room);
+      alert("✅ Room created! Share this link:\n" + location.origin + "?room=" + room);
+      openCanvas(room);
+    };
+
+    // ✅ Join Room button logic (unchanged)
+    document.getElementById("joinBtn").onclick = async ()=>{
+      const room = document.getElementById("roomInput").value.trim().toLowerCase();
+      if(!room) return alert("Enter room name");
+      const exists = await checkRoomExists(room);
+      if(!exists) return alert("🚫 Room not found! Ask your friend to create it first.");
+      openCanvas(room);
+    };
+
+    // Auto-join via URL param
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("room");
+    if (r) openCanvas(r);
   </script>
 </body>
 </html>

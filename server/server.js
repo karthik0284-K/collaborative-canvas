@@ -15,10 +15,26 @@ const rooms = new Map();
 
 app.use(express.static(path.join(__dirname, "..", "client")));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+/* ✅ Create a new room explicitly */
+app.get("/create-room", (req, res) => {
+  const room = req.query.room;
+  if (!room) return res.status(400).json({ success: false, message: "Missing room name" });
+
+  if (!rooms.has(room)) {
+    rooms.set(room, new DrawingState());
+    console.log(`🆕 Room created: ${room}`);
+  }
+
+  res.json({ success: true });
 });
 
+/* ✅ Check if room exists */
+app.get("/check-room", (req, res) => {
+  const room = req.query.room;
+  res.json({ exists: rooms.has(room) });
+});
+
+/* ✅ Get drawing state */
 app.get("/state", (req, res) => {
   const room = req.query.room || "default";
   const state = rooms.get(room);
@@ -27,11 +43,15 @@ app.get("/state", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  const query = socket.handshake.query;
-  const roomName = query.room || "default";
-  if (!rooms.has(roomName)) rooms.set(roomName, new DrawingState());
-  const state = rooms.get(roomName);
+  const roomName = socket.handshake.query.room || "default";
 
+  // Auto-create room if not present
+  if (!rooms.has(roomName)) {
+    rooms.set(roomName, new DrawingState());
+    console.log(`⚙️ Auto-created room ${roomName}`);
+  }
+
+  const state = rooms.get(roomName);
   socket.join(roomName);
 
   const user = {
@@ -40,8 +60,12 @@ io.on("connection", (socket) => {
     color: randomColor(),
   };
 
+  state.users[user.id] = user;
   console.log(`✅ ${user.name} joined ${roomName}`);
 
+  io.to(roomName).emit("user:list", Object.values(state.users));
+
+  /* Cursor events */
   socket.on("cursor:move", (data) => {
     socket.to(roomName).emit("cursor:update", {
       id: socket.id,
@@ -52,6 +76,7 @@ io.on("connection", (socket) => {
     });
   });
 
+  /* Drawing events */
   socket.on("stroke:start", (data) => {
     const layer = Date.now();
     const stroke = {
@@ -70,14 +95,8 @@ io.on("connection", (socket) => {
 
   socket.on("stroke:points", (data) => {
     const stroke = state.strokes[state.strokes.length - 1];
-    if (stroke && stroke.active) {
-      stroke.points.push({ x: data.x2, y: data.y2 });
-    }
+    if (stroke && stroke.active) stroke.points.push({ x: data.x2, y: data.y2 });
     socket.to(roomName).emit("stroke:points", data);
-  });
-
-  socket.on("stroke:end", (data) => {
-    socket.to(roomName).emit("stroke:end", data);
   });
 
   socket.on("stroke:erase", (data) => {
@@ -108,6 +127,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    delete state.users[socket.id];
+    io.to(roomName).emit("user:list", Object.values(state.users));
     socket.to(roomName).emit("user:left", socket.id);
   });
 });
