@@ -82,7 +82,7 @@ export class Canvas {
     }
   }
 
-  // === Drawing ===
+  // Drawing 
   startDrawing(e) {
     this.isDrawing = true;
     this.points = [];

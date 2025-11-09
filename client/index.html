@@ -127,37 +127,35 @@
 
     document.getElementById("soloBtn").onclick = ()=>openCanvas(null,true);
 
-    // ✅ Fixed Create Room button logic
     document.getElementById("createBtn").onclick = async ()=>{
       let room = document.getElementById("roomInput").value.trim();
       if (!room) {
         room = "room-" + Math.random().toString(36).substring(2,8);
       }
 
-      // Normalize to lowercase to avoid duplicates like 'Room1' vs 'room1'
+
       room = room.toLowerCase();
 
       const exists = await checkRoomExists(room);
       if (exists) {
-        alert("⚠️ Room already exists! Try a different name.");
+        alert(" Room already exists! Try a different name.");
         return;
       }
 
       await createRoom(room);
-      alert("✅ Room created! Share this link:\n" + location.origin + "?room=" + room);
+      alert(" Room created! Share this link:\n" + location.origin + "?room=" + room);
       openCanvas(room);
     };
 
-    // ✅ Join Room button logic (unchanged)
+  
     document.getElementById("joinBtn").onclick = async ()=>{
       const room = document.getElementById("roomInput").value.trim().toLowerCase();
       if(!room) return alert("Enter room name");
       const exists = await checkRoomExists(room);
-      if(!exists) return alert("🚫 Room not found! Ask your friend to create it first.");
+      if(!exists) return alert(" Room not found! Ask your friend to create it first.");
       openCanvas(room);
     };
 
-    // Auto-join via URL param
     const params = new URLSearchParams(window.location.search);
     const r = params.get("room");
     if (r) openCanvas(r);
