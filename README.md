@@ -65,11 +65,11 @@ collaborative-canvas/
 │   ├── index.html              # Homepage + UI for room management and drawing
 │   ├── style.css               # Minimal styles (inline in index.html)
 │   ├── canvas.js               # Core drawing + sync logic (Vanilla JS)
-│   ├── websocket.js            # WebSocket connection helper
-│   └── main.js (optional)      # Entry point if modularized
+│   ├── websocket.js            # WebSocket connection helper (Code part is been kept in index.html as there are bugs arising)
+│   └── main.js (optional)      # Entry point if modularized (Code part is been kept in index.html as there are bugs arising)
 ├── server/
 │   ├── server.js               # Express + Socket.io server setup
-│   ├── rooms.js                # Room management (in-memory)
+│   ├── rooms.js                # Room management (in-memory) (Code part is been kept in server.js as there are bugs arising)
 │   └── drawing-state.js        # Drawing state management (strokes, undo/redo)
 ├── package.json
 ├── README.md                   # Documentation
