@@ -13,9 +13,15 @@ const server = http.createServer(app);
 const io = new Server(server);
 const rooms = new Map();
 
+/* ✅ Serve static frontend files from /client */
 app.use(express.static(path.join(__dirname, "..", "client")));
 
-/* ✅ Create a new room explicitly */
+/* ✅ Serve index.html for all GET requests (for Render/Vercel/SPA routing) */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+});
+
+/* ✅ Create a new room */
 app.get("/create-room", (req, res) => {
   const room = req.query.room;
   if (!room) return res.status(400).json({ success: false, message: "Missing room name" });
@@ -42,6 +48,7 @@ app.get("/state", (req, res) => {
   res.json(state.getActiveStrokes());
 });
 
+/* ✅ WebSocket Connections */
 io.on("connection", (socket) => {
   const roomName = socket.handshake.query.room || "default";
 
@@ -65,7 +72,7 @@ io.on("connection", (socket) => {
 
   io.to(roomName).emit("user:list", Object.values(state.users));
 
-  /* Cursor events */
+  /* 🎯 Cursor events */
   socket.on("cursor:move", (data) => {
     socket.to(roomName).emit("cursor:update", {
       id: socket.id,
@@ -76,7 +83,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  /* Drawing events */
+  /* ✏️ Drawing events */
   socket.on("stroke:start", (data) => {
     const layer = Date.now();
     const stroke = {
@@ -139,4 +146,4 @@ function randomColor() {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

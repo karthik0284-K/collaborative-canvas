@@ -12,7 +12,7 @@ export class Canvas {
     this.color = "#000000";
     this.lineWidth = 4;
     this.tool = "brush";
-    this.cursors = {}; // track all user cursors
+    this.cursors = {}; 
     this.points = [];
 
     this.resizeCanvas();
